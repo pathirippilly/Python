@@ -35,15 +35,23 @@ def fullValidation(output_path="",source=[],target=[]):
 
     else:
         print "FULL DATA VALIDATION SUCCESSFULLY COMPLETED"
+def dupFind(target=[],output_path=""):
+    duplicates=set((x,target.count(x)) for x in filter(lambda rec : target.count(rec)>1,target))
+    dup_report="{}\dup.{}".format(output_path, int(time.time()))
+
+    print "Please find the duplicate records of  target in {}".format(dup_report)
+    with open(dup_report, 'w+') as f:
+        f.write("RECORD|DUPLICATE_COUNT\n")
+        for line in duplicates:
+            f.write("{}|{}\n".format(line[0], line[1]))
+
 
 # Variable initialisation
 
-  flag=1
+flag=1
 output_path = sys.argv[3]
 
 # File Existence Check
-print sys.argv
-print len(sys.argv)
 if len(sys.argv)==4:
     for fil in sys.argv[:3]:
         if not os.path.isfile(fil):
@@ -61,8 +69,10 @@ else:
 if flag==1:
     # Opening files and adding the contents in to a list
     with open(sys.argv[1]) as src,open(sys.argv[2]) as tgt:
-        src = list(src)
-        tgt = list(tgt)
+        src = map(lambda x : x.strip(),list(src))
+        tgt = map(lambda x : x.strip(),list(tgt))
+
+
 
     # file detailing
     print "SOURCE"
@@ -85,3 +95,8 @@ if flag==1:
             print"SOURCE vs TARGET:FULL DATA VALIDATION"
             print""
             fullValidation(output_path,src,tgt)
+    elif len(set(tgt))==len(src):
+        print "Target : {} is having duplicate records".format(sys.argv[2])
+        dupFind(tgt,output_path)
+
+
