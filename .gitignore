@@ -3,3 +3,5 @@ File_Comparison/venv/
 input_dir/
 output_dir/
 nppBackup/
+TDM/venv/
+TDM/.idea/
