@@ -1,8 +1,21 @@
 import os
 import sys
 import time
+from functools import wraps
 
 # functions
+
+def fn_timer(function):
+    @wraps(function)
+    def function_timer(*args, **kwargs):
+        t0 = time.time()
+        result = function(*args, **kwargs)
+        t1 = time.time()
+        print ("Total time running %s: %s seconds" %
+               (function.func_name, str(t1-t0))
+               )
+        return result
+    return function_timer
 
 def fileCount(file_list=[]):
     row_cnt=len(file_list)
@@ -52,8 +65,15 @@ def fullValidation(output_path="",source=[],target=[]):
 
     else:
         print "FULL DATA VALIDATION SUCCESSFULLY COMPLETED"
+@fn_timer
+
 def dupFind(dup_list=[],output_path=""):
+    dup_list=sorted(dup_list,key=lambda x : x.split(",")[0])
+    t0 = time.time()
     duplicates=set((x,dup_list.count(x)) for x in filter(lambda rec : dup_list.count(rec)>1,dup_list))
+    t1 = time.time()
+    print "time taken for preparing duplicate list is {}".format(str(t1-t0))
+
     dup_report="{}\dup.{}".format(output_path, int(time.time()))
 
     print "Please find the duplicate records  in {}".format(dup_report)
