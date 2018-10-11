@@ -1,9 +1,16 @@
 import os
 import sys
 import time
+import datetime
 from functools import wraps
+from collections import Counter
+
 
 # functions
+
+begint=datetime.datetime.now()
+
+print "execution started at : {}\n".format(datetime.datetime.now())
 
 def fn_timer(function):
     @wraps(function)
@@ -47,11 +54,13 @@ def fileDetailing(file_path="",file_list=[]):
     print "COLUMN_COUNT: {}".format(next(cnt))
     print ""
 def fullValidation(output_path="",source=[],target=[]):
-    source=sorted(source,key=lambda x : x.split(",")[0])
-    target=sorted(target,key=lambda x : x.split(",")[0])
 
-    compared = map(lambda x: (x[0].strip(), x[1].strip()), filter(lambda data: data[0] != data[1], zip(source, target)))
-    if len(compared) > 0:
+    #source=sorted(source,key=lambda x : x.split(",")[0])
+    #target=sorted(target,key=lambda x : x.split(",")[0])
+
+    compared=((x,y) for (x,y) in zip(source, target) if x != y )
+
+    if len(list(compared)) > 0:
         error_report = "{}\\file_diff.{}".format(output_path, int(time.time()))
         print error_report
         print "FULL DATA VALIDATION FAILED!!"
@@ -68,11 +77,8 @@ def fullValidation(output_path="",source=[],target=[]):
 @fn_timer
 
 def dupFind(dup_list=[],output_path=""):
-    dup_list=sorted(dup_list,key=lambda x : x.split(",")[0])
-    t0 = time.time()
-    duplicates=set((x,dup_list.count(x)) for x in filter(lambda rec : dup_list.count(rec)>1,dup_list))
-    t1 = time.time()
-    print "time taken for preparing duplicate list is {}".format(str(t1-t0))
+    counts = Counter(dup_list)
+    duplicates = ((x, c) for x, c in counts.iteritems() if c > 1)
 
     dup_report="{}\dup.{}".format(output_path, int(time.time()))
 
@@ -136,9 +142,9 @@ else:
 # Main Validation
 if flag==1:
     # Opening files and adding the contents in to a list
-    with open(sys.argv[1]) as src,open(sys.argv[2]) as tgt:
-        src = map(lambda x : x.strip(),list(src))
-        tgt = map(lambda x : x.strip(),list(tgt))
+    with open(sys.argv[1]) as source,open(sys.argv[2]) as target:
+        src = map(str.strip,source)
+        tgt = map(str.strip,target)
 
 
 
@@ -184,3 +190,9 @@ if flag==1:
         if len(src[0].split(",")) < len(tgt[0].split(",")):
             print "TARGET IS HAVING MORE NUMBER OF COLUMNS THAN SOURCE!!"
             print""
+
+endt=datetime.datetime.now()
+
+print "execution finished at : {}\n".format(datetime.datetime.now())
+print "total time taken {} seconds ".format(endt-begint)
+
